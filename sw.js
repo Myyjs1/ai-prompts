@@ -18,35 +18,19 @@ self.addEventListener('install', event => {
     );
 });
 
-self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
-
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
     if (url.origin === self.origin) {
-        if (!url.pathname.startsWith('/ai-prompts/')) {
-            url.pathname = '/ai-prompts' + url.pathname;
-        }
+        url.pathname = '/ai-prompts' + url.pathname;
     }
     
     event.respondWith(
-        caches.match(url)
+        caches.match(url.toString())
             .then(response => {
                 if (response) {
                     return response;
                 }
-                return fetch(event.request)
+                return fetch(event.request.clone())
                     .then(response => {
                         if (!response || response.status !== 200 || response.type !== 'basic') {
                             return response;
@@ -54,10 +38,10 @@ self.addEventListener('fetch', event => {
                         const responseToCache = response.clone();
                         caches.open(CACHE_NAME)
                             .then(cache => {
-                                cache.put(url, responseToCache);
+                                cache.put(url.toString(), responseToCache);
                             });
                         return response;
                     });
             })
     );
-}); 
+});
