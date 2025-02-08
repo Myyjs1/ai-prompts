@@ -236,13 +236,87 @@ let currentCategory = 'all';
 let prompts = [];
 let currentTag = ''; // 添加当前选中的标签状态
 
+// 本地存储相关功能
+const LOCAL_STORAGE_KEY = 'local_prompts';
+
+// WebDAV 配置存储键
+const WEBDAV_CONFIG_KEY = 'webdav_config';
+
+// 加载本地提示词
+function loadLocalPrompts() {
+    const localPromptsJson = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (localPromptsJson) {
+        try {
+            return JSON.parse(localPromptsJson);
+        } catch (e) {
+            console.error('Failed to parse local prompts:', e);
+            return { version: "1.0", lastModified: "", prompts: [] };
+        }
+    }
+    return { version: "1.0", lastModified: "", prompts: [] };
+}
+
+// 保存本地提示词
+function saveLocalPrompts(promptsData) {
+    promptsData.lastModified = new Date().toISOString();
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(promptsData));
+}
+
+// 添加新的提示词
+function addNewPrompt(prompt) {
+    const localPrompts = loadLocalPrompts();
+    prompt.id = `local_${Date.now()}`;
+    prompt.createdAt = new Date().toISOString();
+    prompt.isLocal = true;
+    localPrompts.prompts.push(prompt);
+    saveLocalPrompts(localPrompts);
+    loadPrompts(currentCategory); // 重新加载显示
+}
+
+// 导出提示词数据
+function exportPrompts() {
+    const localPrompts = loadLocalPrompts();
+    const blob = new Blob([JSON.stringify(localPrompts, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `prompts-backup-${new Date().toISOString()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// 导入提示词数据
+async function importPrompts(file) {
+    try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (data.version && Array.isArray(data.prompts)) {
+            saveLocalPrompts(data);
+            loadPrompts(currentCategory); // 重新加载显示
+            showToast('提示词导入成功！');
+        } else {
+            throw new Error('Invalid file format');
+        }
+    } catch (e) {
+        console.error('Failed to import prompts:', e);
+        showToast('导入失败，请检查文件格式');
+    }
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     categories = categoriesData.categories;
     renderCategories();
     initializeEventListeners();
+    initializeModals();
     loadPrompts('all');
     initWelcomeBanner();
+    
+    // 添加错误处理
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+        console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
+        return false;
+    };
 });
 
 // 初始化欢迎横幅
@@ -272,8 +346,12 @@ function loadPrompts(categoryId) {
     // 获取收藏和使用次数数据
     const favorites = JSON.parse(localStorage.getItem('favorites') || '{}');
     const usageCounts = JSON.parse(localStorage.getItem('usageCounts') || '{}');
+    const localPromptsData = loadLocalPrompts();
 
-    if (categoryId === 'favorites') {
+    if (categoryId === 'local') {
+        // 只加载本地提示词
+        prompts = localPromptsData.prompts;
+    } else if (categoryId === 'favorites') {
         // 加载收藏的提示词
         prompts = Object.entries(promptsData).reduce((acc, [category, categoryPrompts]) => {
             return acc.concat(categoryPrompts
@@ -283,20 +361,25 @@ function loadPrompts(categoryId) {
                     category
                 })));
         }, []);
+        // 添加本地收藏的提示词
+        prompts = prompts.concat(localPromptsData.prompts.filter(prompt => favorites[prompt.id]));
     } else if (categoryId === 'all') {
-        // 如果是"全部"分类，加载所有分类的提示词
+        // 加载所有提示词，包括本地提示词
         prompts = Object.entries(promptsData).reduce((acc, [category, categoryPrompts]) => {
             return acc.concat(categoryPrompts.map(prompt => ({
                 ...prompt,
                 category
             })));
         }, []);
+        prompts = prompts.concat(localPromptsData.prompts);
     } else {
         // 加载特定分类的提示词
-        prompts = promptsData[categoryId]?.map(prompt => ({
+        prompts = (promptsData[categoryId]?.map(prompt => ({
             ...prompt,
             category: categoryId
-        })) || [];
+        })) || []).concat(
+            localPromptsData.prompts.filter(prompt => prompt.category === categoryId)
+        );
     }
 
     // 排序逻辑：先按收藏状态排序，未收藏的按使用次数排序
@@ -312,7 +395,7 @@ function loadPrompts(categoryId) {
         const aUsageCount = usageCounts[a.id] || 0;
         const bUsageCount = usageCounts[b.id] || 0;
         
-        return bUsageCount - aUsageCount; // 降序排列
+        return bUsageCount - aUsageCount;
     });
 
     renderPrompts();
@@ -328,14 +411,32 @@ function renderCategories() {
         </div>
     `).join('');
     
-    // 保持"全部"分类在最上方
-    container.innerHTML = `
+    // 检查是否有本地提示词
+    const localPrompts = loadLocalPrompts();
+    const hasLocalPrompts = localPrompts.prompts && localPrompts.prompts.length > 0;
+    
+    // 构建基础分类列表
+    let html = `
         <div class="category-item active" data-category="all">
             <span class="category-icon">🏠</span>
             <span class="category-name">全部提示词</span>
         </div>
-        ${categoriesHtml}
     `;
+    
+    // 如果有本地提示词，添加本地分类
+    if (hasLocalPrompts) {
+        html += `
+            <div class="category-item" data-category="local">
+                <span class="category-icon">📝</span>
+                <span class="category-name">本地提示词</span>
+            </div>
+        `;
+    }
+    
+    // 添加其他分类
+    html += categoriesHtml;
+    
+    container.innerHTML = html;
 }
 
 // 初始化事件监听器
@@ -353,14 +454,23 @@ function initializeEventListeners() {
             currentCategory = categoryId;
             
             // 更新分类信息
-            const category = categories.find(c => c.id === categoryId) || {
-                name: '全部提示词',
-                description: '浏览所有可用的AI提示词'
-            };
+            let categoryInfo;
+            if (categoryId === 'local') {
+                const localPrompts = loadLocalPrompts();
+                categoryInfo = {
+                    name: '本地提示词',
+                    description: `共 ${localPrompts.prompts.length} 个本地创建的提示词`
+                };
+            } else {
+                categoryInfo = categories.find(c => c.id === categoryId) || {
+                    name: '全部提示词',
+                    description: '浏览所有可用的AI提示词'
+                };
+            }
             
-            document.querySelector('.category-title').textContent = category.name;
+            document.querySelector('.category-title').textContent = categoryInfo.name;
             document.querySelector('.category-description').textContent = 
-                category.description || `浏览${category.name}相关的AI提示词`;
+                categoryInfo.description || `浏览${categoryInfo.name}相关的AI提示词`;
             
             loadPrompts(categoryId);
         }
@@ -392,31 +502,28 @@ function initializeEventListeners() {
     // 初始化主题
     initTheme();
 
-    // 添加提交提示词按钮事件
-    document.getElementById('submitPromptBtn').addEventListener('click', () => {
-        const issueTitle = encodeURIComponent('提交新提示词');
-        const issueTemplate = encodeURIComponent(`
-### 提示词标题
-[在这里填写提示词标题]
+    // 新建提示词按钮事件
+    const newPromptBtn = document.getElementById('newPromptBtn');
+    if (newPromptBtn) {
+        newPromptBtn.addEventListener('click', () => {
+            const newPromptModal = document.getElementById('newPromptModal');
+            newPromptModal.classList.add('show');
+            // 加载分类选项
+            const categorySelect = document.getElementById('promptCategory');
+            categorySelect.innerHTML = categories.map(category => 
+                `<option value="${category.id}">${category.name}</option>`
+            ).join('');
+        });
+    }
 
-### 提示词内容
-[在这里填写提示词内容]
-
-### 使用说明
-[在这里填写如何使用这个提示词]
-
-### 回复示例
-[在这里提供一个回复示例]
-
-### 标签
-[添加相关标签，用逗号分隔]
-
-### 分类
-[选择一个分类：编程开发/文章写作/AI绘画/商业应用/教育学习]
-        `);
-        
-        window.open(`https://github.com/Myyjs1/ai-prompts/issues/new?title=${issueTitle}&body=${issueTemplate}`, '_blank');
-    });
+    // 导入导出按钮事件
+    const importExportBtn = document.getElementById('importExportBtn');
+    if (importExportBtn) {
+        importExportBtn.addEventListener('click', () => {
+            const importExportModal = document.getElementById('importExportModal');
+            importExportModal.classList.add('show');
+        });
+    }
 }
 
 // 初始化主题
@@ -460,11 +567,23 @@ function renderPrompts() {
     let filteredPrompts = prompts;
     if (Array.isArray(prompts)) {
         filteredPrompts = prompts.filter(prompt => {
-            const matchesSearch = 
-                prompt.title.toLowerCase().includes(searchQuery) || 
-                prompt.content.toLowerCase().includes(searchQuery) ||
-                (prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery)));
-            return matchesSearch;
+            // 如果有当前选中的标签，优先按标签筛选
+            if (currentTag) {
+                return prompt.tags && prompt.tags.some(tag => tag.toLowerCase() === currentTag.toLowerCase());
+            }
+            
+            // 否则按搜索关键词筛选
+            if (searchQuery) {
+                return (
+                    prompt.title.toLowerCase().includes(searchQuery) || 
+                    prompt.content.toLowerCase().includes(searchQuery) ||
+                    (prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery))) ||
+                    (prompt.usage && prompt.usage.toLowerCase().includes(searchQuery)) ||
+                    (prompt.example && prompt.example.toLowerCase().includes(searchQuery))
+                );
+            }
+            
+            return true;
         });
     }
 
@@ -477,12 +596,20 @@ function renderPrompts() {
 
     // 渲染HTML
     container.innerHTML = filteredPrompts.map(prompt => `
-        <div class="prompt-card">
+        <div class="prompt-card" data-id="${prompt.id}">
             <div class="prompt-header">
                 <h3>${prompt.title}</h3>
-                <button class="favorite-btn ${favorites[prompt.id] ? 'active' : ''}" data-id="${prompt.id}">
-                    ${favorites[prompt.id] ? '★' : '☆'}
-                </button>
+                <div class="prompt-header-actions">
+                    <button class="edit-prompt-modal-btn" title="编辑提示词" data-id="${prompt.id}">
+                        <span>✏️</span>
+                    </button>
+                    <button class="copy-header-btn" title="复制提示词" data-content="${encodeURIComponent(prompt.content)}">
+                        <span>📋</span>
+                    </button>
+                    <button class="favorite-btn ${favorites[prompt.id] ? 'active' : ''}" data-id="${prompt.id}">
+                        ${favorites[prompt.id] ? '★' : '☆'}
+                    </button>
+                </div>
             </div>
             <div class="prompt-content-section">
                 <h4>提示词内容：</h4>
@@ -498,10 +625,14 @@ function renderPrompts() {
                 <div class="prompt-example-section">
                     <h4>回复示例：</h4>
                     <pre class="prompt-example">${prompt.example}</pre>
+                    <button class="copy-example-btn" data-example="${encodeURIComponent(prompt.example)}">
+                        <span>📋</span> 复制
+                    </button>
                 </div>
             ` : ''}
             ${prompt.tags ? `
                 <div class="prompt-tags">
+                    ${prompt.isLocal ? '<span class="prompt-tag local-tag">本地</span>' : ''}
                     ${prompt.tags.map(tag => `
                         <span class="prompt-tag ${tag === currentTag ? 'active' : ''}" 
                               data-tag="${tag}">${tag}</span>
@@ -509,13 +640,20 @@ function renderPrompts() {
                 </div>
             ` : ''}
             <div class="prompt-footer">
-                <button class="edit-btn" data-id="${prompt.id}">
-                    编辑提示词
-                </button>
-                <button class="copy-btn" data-prompt="${encodeURIComponent(prompt.content)}">
-                    复制提示词
-                </button>
                 <span class="usage-count">使用次数: ${usageCounts[prompt.id] || 0}</span>
+                <div class="prompt-actions">
+                    ${prompt.isLocal ? `
+                        <button class="edit-prompt-btn" data-id="${prompt.id}">
+                            <span>✏️</span> 编辑
+                        </button>
+                        <button class="delete-prompt-btn" data-id="${prompt.id}">
+                            <span>🗑️</span> 删除
+                        </button>
+                    ` : ''}
+                    <button class="copy-btn" data-prompt="${encodeURIComponent(prompt.content)}">
+                        复制提示词
+                    </button>
+                </div>
             </div>
             ${prompt.author ? `
                 <div class="prompt-author">
@@ -543,6 +681,25 @@ function renderPrompts() {
 
     // 添加事件监听器
     addPromptCardEventListeners();
+
+    // 添加示例复制按钮事件监听器
+    document.querySelectorAll('.copy-example-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const exampleText = decodeURIComponent(button.dataset.example);
+            navigator.clipboard.writeText(exampleText)
+                .then(() => {
+                    showToast('示例已复制到剪贴板');
+                    // 更新使用次数
+                    const promptId = button.closest('.prompt-card').dataset.id;
+                    incrementUsageCount(promptId);
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                    showToast('复制失败，请重试');
+                });
+        });
+    });
 }
 
 // 添加提示词卡片的事件监听器
@@ -572,96 +729,142 @@ function addPromptCardEventListeners() {
 
     // 标签点击事件监听器
     document.querySelectorAll('.prompt-tag').forEach(tag => {
-        tag.addEventListener('click', () => {
-            const tagText = tag.dataset.tag;
+        tag.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
+            const tagText = tag.textContent;
+            
+            // 如果点击的是"本地"标签，不做任何处理
+            if (tag.classList.contains('local-tag')) {
+                return;
+            }
+            
             // 如果点击的是当前选中的标签，则取消选中
             if (currentTag === tagText) {
                 currentTag = '';
                 document.getElementById('search').value = '';
+                document.querySelectorAll('.prompt-tag').forEach(t => t.classList.remove('active'));
             } else {
                 currentTag = tagText;
                 document.getElementById('search').value = tagText;
+                document.querySelectorAll('.prompt-tag').forEach(t => {
+                    if (t.textContent === tagText) {
+                        t.classList.add('active');
+                    } else {
+                        t.classList.remove('active');
+                    }
+                });
             }
+            
             renderPrompts();
         });
     });
 
     // 编辑按钮事件监听器
-    document.querySelectorAll('.edit-btn').forEach(button => {
+    document.querySelectorAll('.edit-prompt-modal-btn').forEach(button => {
         button.addEventListener('click', () => {
             const promptId = button.dataset.id;
-            openEditor(promptId);
+            openEditPromptModal(promptId);
+        });
+    });
+
+    // 编辑按钮事件监听器
+    document.querySelectorAll('.edit-prompt-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const promptId = button.dataset.id;
+            editLocalPrompt(promptId);
+        });
+    });
+
+    // 删除按钮事件监听器
+    document.querySelectorAll('.delete-prompt-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const promptId = button.dataset.id;
+            deleteLocalPrompt(promptId);
+        });
+    });
+
+    // 添加复制按钮点击事件
+    const copyHeaderBtn = document.querySelectorAll('.copy-header-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const content = decodeURIComponent(e.currentTarget.dataset.content);
+            navigator.clipboard.writeText(content).then(() => {
+                showToast('已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                showToast('复制失败');
+            });
         });
     });
 }
 
-// 打开编辑器
-function openEditor(promptId) {
-    const prompt = findPromptById(promptId);
+// 编辑本地提示词
+function editLocalPrompt(promptId) {
+    const localPrompts = loadLocalPrompts();
+    const prompt = localPrompts.prompts.find(p => p.id === promptId);
+    
     if (!prompt) return;
 
-    const editor = document.getElementById('editorPanel');
-    const mainContent = document.querySelector('main');
-    const promptEditor = document.getElementById('promptEditor');
-    const variableList = document.getElementById('variableList');
-    const previewContent = editor.querySelector('.preview-content');
+    // 填充表单
+    document.getElementById('promptTitle').value = prompt.title;
+    document.getElementById('promptCategory').value = prompt.category;
+    document.getElementById('promptContent').value = prompt.content;
+    document.getElementById('promptTags').value = prompt.tags.join(', ');
+    document.getElementById('promptUsage').value = prompt.usage || '';
+    document.getElementById('promptExample').value = prompt.example || '';
 
-    // 设置编辑器内容
-    promptEditor.value = prompt.content;
+    // 显示模态框
+    const modal = document.getElementById('newPromptModal');
+    modal.classList.add('show');
 
-    // 查找可能的变量 {variable_name}
-    const variables = [...new Set(prompt.content.match(/\{([^}]+)\}/g) || [])];
+    // 修改保存按钮的行为
+    const saveBtn = modal.querySelector('.save-btn');
+    const originalClick = saveBtn.onclick;
     
-    // 渲染变量输入框
-    variableList.innerHTML = variables.map(variable => `
-        <div class="variable-item">
-            <input type="text" 
-                   placeholder="${variable.replace(/[{}]/g, '')}"
-                   data-variable="${variable}"
-                   class="variable-input">
-        </div>
-    `).join('');
-
-    // 显示编辑器
-    editor.classList.add('show');
-    mainContent.classList.add('editor-open');
-
-    // 添加事件监听器
-    const closeBtn = editor.querySelector('.close-editor');
-    const previewBtn = editor.querySelector('.preview-btn');
-    const copyBtn = editor.querySelector('.editor-actions .copy-btn');
-
-    closeBtn.onclick = () => {
-        editor.classList.remove('show');
-        mainContent.classList.remove('editor-open');
-    };
-
-    previewBtn.onclick = () => {
-        updatePreview();
-    };
-
-    copyBtn.onclick = () => {
-        copyToClipboard(previewContent.textContent || promptEditor.value);
-        incrementUsageCount(promptId);
-    };
-
-    // 变量输入事件
-    variableList.querySelectorAll('.variable-input').forEach(input => {
-        input.addEventListener('input', () => {
-            updatePreview();
-        });
-    });
-
-    // 更新预览
-    function updatePreview() {
-        let previewText = promptEditor.value;
-        variableList.querySelectorAll('.variable-input').forEach(input => {
-            const value = input.value.trim();
-            if (value) {
-                previewText = previewText.replace(input.dataset.variable, value);
+    saveBtn.onclick = () => {
+        const formData = getFormData();
+        
+        if (validateForm(formData)) {
+            // 更新提示词
+            const index = localPrompts.prompts.findIndex(p => p.id === promptId);
+            if (index !== -1) {
+                localPrompts.prompts[index] = {
+                    ...formData,
+                    id: promptId,
+                    isLocal: true,
+                    createdAt: prompt.createdAt,
+                    updatedAt: new Date().toISOString()
+                };
+                saveLocalPrompts(localPrompts);
+                loadPrompts(currentCategory);
+                modal.classList.remove('show');
+                showToast('提示词更新成功！');
             }
-        });
-        previewContent.textContent = previewText;
+        } else {
+            showToast('请填写必填字段！');
+        }
+    };
+
+    // 在模态框关闭时恢复原始的点击事件
+    const closeHandler = () => {
+        saveBtn.onclick = originalClick;
+        modal.removeEventListener('hidden', closeHandler);
+    };
+    modal.addEventListener('hidden', closeHandler);
+}
+
+// 删除本地提示词
+function deleteLocalPrompt(promptId) {
+    if (confirm('确定要删除这个提示词吗？此操作不可撤销。')) {
+        const localPrompts = loadLocalPrompts();
+        const index = localPrompts.prompts.findIndex(p => p.id === promptId);
+        
+        if (index !== -1) {
+            localPrompts.prompts.splice(index, 1);
+            saveLocalPrompts(localPrompts);
+            loadPrompts(currentCategory);
+            showToast('提示词已删除！');
+        }
     }
 }
 
@@ -726,4 +929,636 @@ function showToast(message) {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 2000);
+}
+
+// 初始化模态框事件
+function initializeModals() {
+    // 获取模态框元素
+    const newPromptModal = document.getElementById('newPromptModal');
+    const importExportModal = document.getElementById('importExportModal');
+    const editPromptModal = document.getElementById('editPromptModal');
+    
+    if (!newPromptModal || !importExportModal || !editPromptModal) {
+        console.error('Modal elements not found');
+        return;
+    }
+
+    // 关闭按钮事件
+    document.querySelectorAll('.close-modal').forEach(button => {
+        button.addEventListener('click', () => {
+            button.closest('.modal').classList.remove('show');
+        });
+    });
+    
+    // 点击模态框外部关闭
+    [newPromptModal, importExportModal, editPromptModal].forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    });
+    
+    // 获取表单数据
+    function getFormData() {
+        const title = document.getElementById('promptTitle').value;
+        const category = document.getElementById('promptCategory').value;
+        const content = document.getElementById('promptContent').value;
+        const tags = document.getElementById('promptTags').value.split(',').map(tag => tag.trim()).filter(Boolean);
+        const usage = document.getElementById('promptUsage').value;
+        const example = document.getElementById('promptExample').value;
+        
+        return { title, category, content, tags, usage, example };
+    }
+    
+    // 验证表单数据
+    function validateForm(data) {
+        return data.title && data.category && data.content;
+    }
+    
+    // 保存到本地
+    const saveBtn = newPromptModal.querySelector('.save-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const formData = getFormData();
+            
+            if (validateForm(formData)) {
+                addNewPrompt(formData);
+                newPromptModal.querySelector('form').reset();
+                newPromptModal.classList.remove('show');
+                showToast('提示词创建成功！');
+            } else {
+                showToast('请填写必填字段！');
+            }
+        });
+    }
+    
+    // 提交到 GitHub
+    const submitGithubBtn = newPromptModal.querySelector('.submit-github-btn');
+    if (submitGithubBtn) {
+        submitGithubBtn.addEventListener('click', () => {
+            const formData = getFormData();
+            
+            if (validateForm(formData)) {
+                const issueTitle = encodeURIComponent(`提交新提示词: ${formData.title}`);
+                const issueBody = encodeURIComponent(`
+### 提示词标题
+${formData.title}
+
+### 提示词内容
+${formData.content}
+
+### 使用说明
+${formData.usage || '无'}
+
+### 使用示例
+${formData.example || '无'}
+
+### 标签
+${formData.tags.join(', ') || '无'}
+
+### 分类
+${formData.category}
+                `);
+                
+                window.open(`https://github.com/Myyjs1/ai-prompts/issues/new?title=${issueTitle}&body=${issueBody}`, '_blank');
+                newPromptModal.classList.remove('show');
+            } else {
+                showToast('请填写必填字段！');
+            }
+        });
+    }
+    
+    // 取消按钮
+    const cancelBtn = newPromptModal.querySelector('.cancel-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            newPromptModal.classList.remove('show');
+        });
+    }
+    
+    // 导出按钮
+    const exportBtn = document.querySelector('.export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            exportPrompts();
+            importExportModal.classList.remove('show');
+            showToast('导出成功！');
+        });
+    }
+    
+    // 导入按钮
+    const importFile = document.getElementById('importFile');
+    if (importFile) {
+        importFile.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                await importPrompts(e.target.files[0]);
+                importExportModal.classList.remove('show');
+                e.target.value = ''; // 清空文件选择
+            }
+        });
+    }
+
+    // WebDAV 配置保存按钮
+    const saveWebDAVConfigBtn = document.querySelector('.save-webdav-config');
+    if (saveWebDAVConfigBtn) {
+        saveWebDAVConfigBtn.addEventListener('click', saveWebDAVConfig);
+    }
+    
+    // WebDAV 备份按钮
+    const backupToWebDAVBtn = document.querySelector('.backup-to-webdav-btn');
+    if (backupToWebDAVBtn) {
+        backupToWebDAVBtn.addEventListener('click', backupToWebDAV);
+    }
+    
+    // WebDAV 恢复按钮
+    const restoreFromWebDAVBtn = document.querySelector('.restore-from-webdav-btn');
+    if (restoreFromWebDAVBtn) {
+        restoreFromWebDAVBtn.addEventListener('click', restoreFromWebDAV);
+    }
+    
+    // 加载 WebDAV 配置
+    loadWebDAVConfig();
+
+    // 编辑提示词模态框的保存按钮事件
+    const editModalSaveBtn = editPromptModal.querySelector('.save-local-btn');
+    if (editModalSaveBtn) {
+        editModalSaveBtn.addEventListener('click', () => {
+            const promptId = editPromptModal.dataset.promptId;
+            const title = document.getElementById('editPromptTitle').value;
+            const content = document.getElementById('editPromptContent').value;
+            const usage = document.getElementById('editPromptUsage').value;
+            const example = document.getElementById('editPromptExample').value;
+            const tags = document.getElementById('editPromptTags').value.split(',').map(tag => tag.trim()).filter(Boolean);
+            const category = document.getElementById('editPromptCategory').value;
+
+            // 创建新的本地提示词
+            const newPrompt = {
+                title,
+                content,
+                usage,
+                example,
+                tags,
+                category,
+                isLocal: true,
+                createdAt: new Date().toISOString()
+            };
+
+            addNewPrompt(newPrompt);
+            editPromptModal.classList.remove('show');
+            showToast('提示词已保存到本地！');
+        });
+    }
+
+    // 编辑提示词模态框的复制按钮事件
+    const editModalCopyBtn = editPromptModal.querySelector('.copy-content-btn');
+    if (editModalCopyBtn) {
+        editModalCopyBtn.addEventListener('click', () => {
+            const content = document.getElementById('editPromptContent').value;
+            copyToClipboard(content);
+            showToast('提示词内容已复制！');
+        });
+    }
+}
+
+// 保存 WebDAV 配置
+function saveWebDAVConfig() {
+    const url = document.getElementById('webdavUrl').value.trim();
+    const username = document.getElementById('webdavUsername').value.trim();
+    const password = document.getElementById('webdavPassword').value;
+    const filename = document.getElementById('webdavFilename').value.trim() || 'prompts-backup.json';
+    
+    // 验证输入
+    if (!url) {
+        showToast('请输入 WebDAV 服务器地址');
+        return;
+    }
+    if (!username) {
+        showToast('请输入用户名');
+        return;
+    }
+    if (!password) {
+        showToast('请输入密码');
+        return;
+    }
+    
+    try {
+        // 验证 URL 格式
+        new URL(url);
+        
+        const config = {
+            url,
+            username,
+            password: btoa(password), // Base64 加密
+            filename
+        };
+        
+        localStorage.setItem(WEBDAV_CONFIG_KEY, JSON.stringify(config));
+        showToast('WebDAV 配置已保存');
+    } catch (error) {
+        if (error instanceof TypeError) {
+            showToast('请输入有效的 WebDAV 服务器地址');
+        } else {
+            showToast('保存配置失败: ' + error.message);
+        }
+    }
+}
+
+// 加载 WebDAV 配置
+function loadWebDAVConfig() {
+    const configJson = localStorage.getItem(WEBDAV_CONFIG_KEY);
+    if (configJson) {
+        try {
+            const config = JSON.parse(configJson);
+            document.getElementById('webdavUrl').value = config.url;
+            document.getElementById('webdavUsername').value = config.username;
+            document.getElementById('webdavFilename').value = config.filename;
+            // 不回填密码，出于安全考虑
+        } catch (e) {
+            console.error('Failed to load WebDAV config:', e);
+        }
+    }
+}
+
+// 创建 WebDAV 客户端
+function createWebDAVClient() {
+    const configJson = localStorage.getItem(WEBDAV_CONFIG_KEY);
+    if (!configJson) {
+        throw new Error('WebDAV 配置未找到');
+    }
+    
+    const config = JSON.parse(configJson);
+    const password = atob(config.password); // 解密密码
+    
+    // 确保 URL 格式正确
+    let baseUrl = config.url.trim();
+    if (!baseUrl.endsWith('/')) {
+        baseUrl += '/';
+    }
+
+    // Cloudflare Worker 代理 URL（替换为你的 Worker URL）
+    const PROXY_URL = 'https://your-worker.your-name.workers.dev/proxy?url=';
+    
+    return {
+        config: { ...config, url: baseUrl },
+        // 执行 PUT 请求上传文件
+        async put(content) {
+            try {
+                const targetUrl = encodeURIComponent(baseUrl + config.filename);
+                const proxyUrl = PROXY_URL + targetUrl;
+
+                const response = await fetch(proxyUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(config.username + ':' + password),
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    },
+                    body: content
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`WebDAV 上传失败: ${response.status} ${response.statusText}\n${errorText}`);
+                }
+                
+                return response;
+            } catch (error) {
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    throw new Error('无法连接到代理服务器。请检查网络连接或联系管理员。');
+                }
+                throw error;
+            }
+        },
+        // 执行 GET 请求下载文件
+        async get() {
+            try {
+                const targetUrl = encodeURIComponent(baseUrl + config.filename);
+                const proxyUrl = PROXY_URL + targetUrl;
+
+                const response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(config.username + ':' + password),
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('备份文件不存在，请先创建备份');
+                    }
+                    const errorText = await response.text();
+                    throw new Error(`WebDAV 下载失败: ${response.status} ${response.statusText}\n${errorText}`);
+                }
+                
+                return await response.text();
+            } catch (error) {
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    throw new Error('无法连接到代理服务器。请检查网络连接或联系管理员。');
+                }
+                throw error;
+            }
+        }
+    };
+}
+
+// 备份到 WebDAV
+async function backupToWebDAV() {
+    try {
+        const client = createWebDAVClient();
+        const localPrompts = loadLocalPrompts();
+        
+        // 显示加载状态
+        const backupBtn = document.querySelector('.backup-to-webdav-btn');
+        const originalText = backupBtn.innerHTML;
+        backupBtn.innerHTML = '<span class="loading"></span> 备份中...';
+        backupBtn.disabled = true;
+        
+        await client.put(JSON.stringify(localPrompts, null, 2));
+        showToast('成功备份到 WebDAV');
+        
+        // 恢复按钮状态
+        backupBtn.innerHTML = originalText;
+        backupBtn.disabled = false;
+    } catch (error) {
+        console.error('WebDAV backup failed:', error);
+        showToast('备份失败: ' + error.message);
+        
+        // 恢复按钮状态
+        const backupBtn = document.querySelector('.backup-to-webdav-btn');
+        backupBtn.innerHTML = '<span>☁️</span> 备份到 WebDAV';
+        backupBtn.disabled = false;
+    }
+}
+
+// 从 WebDAV 恢复
+async function restoreFromWebDAV() {
+    try {
+        const client = createWebDAVClient();
+        
+        // 显示加载状态
+        const restoreBtn = document.querySelector('.restore-from-webdav-btn');
+        const originalText = restoreBtn.innerHTML;
+        restoreBtn.innerHTML = '<span class="loading"></span> 恢复中...';
+        restoreBtn.disabled = true;
+        
+        const content = await client.get();
+        const data = JSON.parse(content);
+        
+        if (data.version && Array.isArray(data.prompts)) {
+            if (confirm('确定要从 WebDAV 恢复数据吗？这将覆盖当前的本地数据。')) {
+                saveLocalPrompts(data);
+                loadPrompts(currentCategory);
+                showToast('成功从 WebDAV 恢复数据');
+            }
+        } else {
+            throw new Error('无效的备份文件格式');
+        }
+        
+        // 恢复按钮状态
+        restoreBtn.innerHTML = originalText;
+        restoreBtn.disabled = false;
+    } catch (error) {
+        console.error('WebDAV restore failed:', error);
+        showToast('恢复失败: ' + error.message);
+        
+        // 恢复按钮状态
+        const restoreBtn = document.querySelector('.restore-from-webdav-btn');
+        restoreBtn.innerHTML = '<span>⬇️</span> 从 WebDAV 恢复';
+        restoreBtn.disabled = false;
+    }
+}
+
+function createPromptCard(prompt) {
+    const card = document.createElement('div');
+    card.className = 'prompt-card';
+    
+    const header = document.createElement('div');
+    header.className = 'prompt-header';
+    header.innerHTML = `
+        <h3>${prompt.title}</h3>
+        <div class="prompt-header-actions">
+            <button class="edit-prompt-modal-btn" title="编辑提示词" data-id="${prompt.id}">
+                <span>✏️</span>
+            </button>
+            <button class="copy-header-btn" title="复制提示词" data-content="${encodeURIComponent(prompt.content)}">
+                <span>📋</span>
+            </button>
+            <button class="favorite-btn ${favorites[prompt.id] ? 'active' : ''}" data-id="${prompt.id}">
+                ${favorites[prompt.id] ? '★' : '☆'}
+            </button>
+        </div>
+    `;
+    
+    const contentSection = document.createElement('div');
+    contentSection.className = 'prompt-content-section';
+    
+    const contentTitle = document.createElement('h4');
+    contentTitle.textContent = '提示词内容：';
+    
+    const contentContent = document.createElement('p');
+    contentContent.className = 'prompt-content';
+    contentContent.textContent = prompt.content;
+    
+    contentSection.appendChild(contentTitle);
+    contentSection.appendChild(contentContent);
+    
+    if (prompt.usage) {
+        const usageSection = document.createElement('div');
+        usageSection.className = 'prompt-usage-section';
+        
+        const usageTitle = document.createElement('h4');
+        usageTitle.textContent = '使用说明：';
+        
+        const usageContent = document.createElement('p');
+        usageContent.className = 'prompt-usage';
+        usageContent.textContent = prompt.usage;
+        
+        usageSection.appendChild(usageTitle);
+        usageSection.appendChild(usageContent);
+        contentSection.appendChild(usageSection);
+    }
+    
+    if (prompt.example) {
+        const exampleSection = document.createElement('div');
+        exampleSection.className = 'prompt-example-section';
+        
+        const exampleTitle = document.createElement('h4');
+        exampleTitle.textContent = '回复示例：';
+        
+        const exampleContent = document.createElement('pre');
+        exampleContent.className = 'prompt-example';
+        exampleContent.textContent = prompt.example;
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-example-btn';
+        copyBtn.innerHTML = '<span>📋</span> 复制';
+        copyBtn.onclick = (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(prompt.example)
+                .then(() => {
+                    showToast('示例已复制到剪贴板');
+                    // 更新使用次数
+                    const promptId = card.querySelector('.favorite-btn').dataset.id;
+                    incrementUsageCount(promptId);
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                    showToast('复制失败，请重试');
+                });
+        };
+        
+        exampleSection.appendChild(exampleTitle);
+        exampleSection.appendChild(exampleContent);
+        exampleSection.appendChild(copyBtn);
+        contentSection.appendChild(exampleSection);
+    }
+    
+    if (prompt.tags) {
+        const tagsSection = document.createElement('div');
+        tagsSection.className = 'prompt-tags';
+        
+        prompt.tags.forEach(tag => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'prompt-tag';
+            tagSpan.textContent = tag;
+            tagSpan.dataset.tag = tag;
+            tagSpan.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const tagText = e.target.textContent;
+                if (tagText === currentTag) {
+                    currentTag = '';
+                    document.getElementById('search').value = '';
+                    document.querySelectorAll('.prompt-tag').forEach(t => t.classList.remove('active'));
+                } else {
+                    currentTag = tagText;
+                    document.getElementById('search').value = tagText;
+                    document.querySelectorAll('.prompt-tag').forEach(t => {
+                        if (t.dataset.tag === tagText) {
+                            t.classList.add('active');
+                        } else {
+                            t.classList.remove('active');
+                        }
+                    });
+                }
+                renderPrompts();
+            });
+            tagsSection.appendChild(tagSpan);
+        });
+        
+        contentSection.appendChild(tagsSection);
+    }
+    
+    const footer = document.createElement('div');
+    footer.className = 'prompt-footer';
+    
+    const usageCount = document.createElement('span');
+    usageCount.className = 'usage-count';
+    usageCount.textContent = `使用次数: ${usageCounts[prompt.id] || 0}`;
+    
+    const actions = document.createElement('div');
+    actions.className = 'prompt-actions';
+    
+    if (prompt.isLocal) {
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-prompt-btn';
+        editBtn.textContent = '<span>✏️</span> 编辑';
+        editBtn.dataset.id = prompt.id;
+        editBtn.addEventListener('click', () => {
+            editLocalPrompt(prompt.id);
+        });
+        actions.appendChild(editBtn);
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-prompt-btn';
+        deleteBtn.textContent = '<span>🗑️</span> 删除';
+        deleteBtn.dataset.id = prompt.id;
+        deleteBtn.addEventListener('click', () => {
+            deleteLocalPrompt(prompt.id);
+        });
+        actions.appendChild(deleteBtn);
+    }
+    
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = '复制提示词';
+    copyBtn.dataset.prompt = encodeURIComponent(prompt.content);
+    copyBtn.addEventListener('click', () => {
+        copyToClipboard(prompt.content);
+        incrementUsageCount(prompt.id);
+    });
+    actions.appendChild(copyBtn);
+    
+    footer.appendChild(usageCount);
+    footer.appendChild(actions);
+    
+    card.appendChild(header);
+    card.appendChild(contentSection);
+    card.appendChild(footer);
+    
+    if (prompt.author) {
+        const author = document.createElement('div');
+        author.className = 'prompt-author';
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'prompt-author-avatar';
+        
+        if (prompt.author.avatar) {
+            const img = document.createElement('img');
+            img.src = prompt.author.avatar;
+            img.alt = prompt.author.username;
+            avatar.appendChild(img);
+        } else {
+            avatar.innerHTML = githubIconSvg;
+        }
+        
+        const info = document.createElement('div');
+        info.className = 'prompt-author-info';
+        
+        const username = document.createElement('span');
+        username.className = 'prompt-author-username';
+        username.textContent = prompt.author.username;
+        
+        if (prompt.author.github) {
+            const githubLink = document.createElement('a');
+            githubLink.href = `https://github.com/${prompt.author.github}`;
+            githubLink.target = '_blank';
+            githubLink.title = '访问 GitHub 主页';
+            githubLink.innerHTML = githubIconSvg;
+            username.appendChild(githubLink);
+        }
+        
+        info.appendChild(username);
+        author.appendChild(avatar);
+        author.appendChild(info);
+        card.appendChild(author);
+    }
+    
+    return card;
+}
+
+// 打开编辑提示词模态框
+function openEditPromptModal(promptId) {
+    const prompt = findPromptById(promptId) || prompts.find(p => p.id === promptId);
+    if (!prompt) return;
+
+    const modal = document.getElementById('editPromptModal');
+    modal.dataset.promptId = promptId;
+
+    // 加载分类选项
+    const categorySelect = document.getElementById('editPromptCategory');
+    categorySelect.innerHTML = categories.map(category => 
+        `<option value="${category.id}">${category.name}</option>`
+    ).join('');
+
+    // 填充表单
+    document.getElementById('editPromptTitle').value = prompt.title;
+    document.getElementById('editPromptContent').value = prompt.content;
+    document.getElementById('editPromptUsage').value = prompt.usage || '';
+    document.getElementById('editPromptExample').value = prompt.example || '';
+    document.getElementById('editPromptTags').value = prompt.tags ? prompt.tags.join(', ') : '';
+    document.getElementById('editPromptCategory').value = prompt.category || categories[0].id;
+
+    modal.classList.add('show');
 } 

@@ -1,0 +1,52 @@
+{
+    "name": "AI提示词库",
+    "short_name": "提示词库",
+    "description": "优质的AI提示词收集和分享平台",
+    "start_url": "/ai-prompts/",
+    "scope": "/ai-prompts/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#007AFF",
+    "icons": [
+        {
+            "src": "/ai-prompts/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "/ai-prompts/icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/ai-prompts/icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "/ai-prompts/icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "/ai-prompts/icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "/ai-prompts/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/ai-prompts/icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        },
+        {
+            "src": "/ai-prompts/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+} 
