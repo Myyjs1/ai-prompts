@@ -1,0 +1,713 @@
+:root {
+    /* Light theme */
+    --primary-color: #007AFF;
+    --secondary-color: #5856D6;
+    --background-color: #f5f5f7;
+    --card-background: #ffffff;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --tag-background: rgba(0, 0, 0, 0.05);
+    --hover-background: rgba(0, 0, 0, 0.05);
+    --border-radius: 12px;
+    --spacing-unit: 8px;
+    --header-height: 60px;
+    --sidebar-width: 260px;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --primary-color: #0A84FF;
+    --secondary-color: #5E5CE6;
+    --background-color: #000000;
+    --card-background: #1c1c1e;
+    --text-primary: #ffffff;
+    --text-secondary: #98989d;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --tag-background: rgba(255, 255, 255, 0.1);
+    --hover-background: rgba(255, 255, 255, 0.1);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    padding: 8px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-left: 16px;
+}
+
+/* Prompt card styles */
+.prompt-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.prompt-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    flex: 1;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    padding: 4px;
+    transition: color 0.3s ease;
+}
+
+.favorite-btn.active {
+    color: #FFD700;
+}
+
+.prompt-content-section,
+.prompt-usage-section,
+.prompt-example-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.prompt-content-section h4,
+.prompt-usage-section h4,
+.prompt-example-section h4 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.prompt-content,
+.prompt-usage {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.prompt-example {
+    background-color: var(--tag-background);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    overflow-x: auto;
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.prompt-tags {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.prompt-tag {
+    background-color: var(--tag-background);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.prompt-tag:hover {
+    background-color: var(--hover-background);
+}
+
+.prompt-tag.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.prompt-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.usage-count {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.copy-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+/* Header Styles */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.main-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-unit);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 500px;
+}
+
+#search {
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+#search:focus {
+    background-color: rgba(0, 0, 0, 0.08);
+    outline: none;
+}
+
+/* Layout */
+.layout-container {
+    display: flex;
+    margin-top: var(--header-height);
+    min-height: calc(100vh - var(--header-height));
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: var(--header-height);
+    bottom: 0;
+    width: var(--sidebar-width);
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 0;
+}
+
+.category-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.category-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.category-icon {
+    margin-right: 12px;
+    font-size: 1.2em;
+}
+
+.category-name {
+    font-size: 0.95rem;
+}
+
+/* Main Content */
+main {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 20px;
+    max-width: calc(1200px + var(--sidebar-width));
+}
+
+.category-info {
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.category-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.prompts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-left: var(--sidebar-width);
+}
+
+footer a:hover {
+    color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 0px;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+        width: 80%;
+        z-index: 900;
+    }
+
+    .main-nav {
+        padding: 10px;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    main {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .prompts-container {
+        grid-template-columns: 1fr;
+    }
+
+    footer {
+        margin-left: 0;
+    }
+
+    /* 添加移动端菜单按钮 */
+    .menu-btn {
+        display: block;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+}
+
+/* Editor Panel */
+.editor-panel {
+    position: fixed;
+    right: 0;
+    top: var(--header-height);
+    bottom: 0;
+    width: 400px;
+    background-color: var(--card-background);
+    border-left: 1px solid var(--border-color);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editor-panel.show {
+    transform: translateX(0);
+}
+
+.editor-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.close-editor {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+}
+
+.editor-content {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.editor-section label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+#promptEditor {
+    width: 100%;
+    min-height: 150px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    resize: vertical;
+}
+
+.variable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.variable-item {
+    display: flex;
+    gap: 8px;
+}
+
+.variable-item input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.preview-btn,
+.editor-actions .copy-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.preview-btn {
+    background-color: var(--tag-background);
+    color: var(--text-primary);
+}
+
+.editor-actions .copy-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.preview-section {
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--background-color);
+}
+
+.preview-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.preview-content {
+    padding: 12px;
+    background-color: var(--card-background);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* Adjust main content when editor is open */
+main {
+    transition: margin-right 0.3s ease;
+}
+
+main.editor-open {
+    margin-right: 400px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .editor-panel {
+        width: 320px;
+    }
+    
+    main.editor-open {
+        margin-right: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .editor-panel {
+        width: 100%;
+    }
+    
+    main.editor-open {
+        margin-right: 0;
+    }
+}
+
+.submit-prompt-btn {
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.submit-prompt-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+@media (max-width: 768px) {
+    .submit-prompt-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
+
+.prompt-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.prompt-author-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.prompt-author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.prompt-author-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.prompt-author-username {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.prompt-author-github {
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.prompt-author-github:hover {
+    color: var(--primary-color);
+}
+
+.github-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+/* Welcome Banner */
+.welcome-banner {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    z-index: 900;
+    transition: transform 0.3s ease;
+}
+
+.welcome-banner.hidden {
+    transform: translateY(-100%);
+}
+
+.welcome-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex: 1;
+}
+
+.welcome-icon {
+    font-size: 1.2em;
+}
+
+.welcome-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.close-banner {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.close-banner:hover {
+    opacity: 1;
+}
+
+/* Adjust layout when banner is visible */
+.layout-container {
+    transition: margin-top 0.3s ease;
+}
+
+.layout-container.banner-visible {
+    margin-top: 50px;
+}
+
+@media (max-width: 768px) {
+    .welcome-text {
+        font-size: 0.85rem;
+    }
+    
+    .layout-container.banner-visible {
+        margin-top: 70px;
+    }
+} 

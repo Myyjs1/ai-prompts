@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="AI提示词库 - 收集优质AI提示词，提升AI对话效率">
+    <meta name="keywords" content="AI提示词, Prompts, ChatGPT, AI绘画, AI编程, AI写作">
+    <title>AI提示词库</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <header class="glass-effect">
+        <nav class="main-nav">
+            <div class="logo">AI提示词库</div>
+            <div class="search-container">
+                <input type="search" id="search" placeholder="搜索提示词...">
+            </div>
+            <button class="submit-prompt-btn" id="submitPromptBtn" title="提交新的提示词">
+                ➕ 提交提示词
+            </button>
+        </nav>
+    </header>
+
+    <div class="welcome-banner" id="welcomeBanner">
+        <div class="welcome-content">
+            <span class="welcome-icon">🎉</span>
+            <span class="welcome-text">欢迎使用AI提示词库！我们诚邀您分享您的优质提示词，一起助力AI创作效率的提升。</span>
+        </div>
+        <button class="close-banner" id="closeBanner" title="关闭消息">×</button>
+    </div>
+
+    <div class="layout-container">
+        <aside class="sidebar glass-effect">
+            <div class="category-list">
+                <div class="category-item active" data-category="all">
+                    <span class="category-icon">🏠</span>
+                    <span class="category-name">全部提示词</span>
+                </div>
+                <!-- 分类列表将通过JavaScript动态加载 -->
+            </div>
+        </aside>
+
+        <main>
+            <div class="category-info">
+                <h2 class="category-title">全部提示词</h2>
+                <p class="category-description">浏览所有可用的AI提示词</p>
+            </div>
+            <div class="prompts-container" id="promptsContainer">
+                <!-- 提示词卡片将通过JavaScript动态加载 -->
+            </div>
+        </main>
+
+        <aside class="editor-panel glass-effect" id="editorPanel">
+            <div class="editor-header">
+                <h3>编辑提示词</h3>
+                <button class="close-editor">×</button>
+            </div>
+            <div class="editor-content">
+                <div class="editor-section">
+                    <label for="promptEditor">提示词内容：</label>
+                    <textarea id="promptEditor" rows="10" placeholder="在这里编辑提示词内容..."></textarea>
+                </div>
+                <div class="editor-section">
+                    <label for="variableInput">变量替换：</label>
+                    <div class="variable-list" id="variableList">
+                        <!-- 变量输入框将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+                <div class="editor-actions">
+                    <button class="preview-btn">预览</button>
+                    <button class="copy-btn">复制</button>
+                </div>
+            </div>
+            <div class="preview-section" id="previewSection">
+                <h4>预览：</h4>
+                <pre class="preview-content"></pre>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <p>© 2024 AI提示词库 | <a href="https://github.com/Myyjs1/ai-prompts" target="_blank">GitHub</a></p>
+    </footer>
+
+    <div class="toast" id="copyToast">已复制到剪贴板</div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
