@@ -18,10 +18,26 @@ self.addEventListener('install', event => {
     );
 });
 
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+});
+
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
     if (url.origin === self.origin) {
-        url.pathname = '/ai-prompts' + url.pathname;
+        if (!url.pathname.startsWith('/ai-prompts/')) {
+            url.pathname = '/ai-prompts' + url.pathname;
+        }
     }
     
     event.respondWith(
