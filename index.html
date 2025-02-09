@@ -6,21 +6,309 @@
     <meta name="description" content="AI提示词库 - 收集优质AI提示词，提升AI对话效率">
     <meta name="keywords" content="AI提示词, Prompts, ChatGPT, AI绘画, AI编程, AI写作">
     <meta name="theme-color" content="#007AFF">
-    <title>AI提示词库</title>
-    <link rel="icon" href="/ai-prompts/icons/icon-32x32.png" sizes="32x32" type="image/png">
-    <link rel="icon" href="/ai-prompts/icons/icon-16x16.png" sizes="16x16" type="image/png">
-    <link rel="manifest" href="/ai-prompts/manifest.json">
-    <link rel="apple-touch-icon" href="/ai-prompts/icons/icon-192x192.png">
-    <link rel="stylesheet" href="/ai-prompts/css/reset.css">
-    <link rel="stylesheet" href="/ai-prompts/css/style.css">
-    <link rel="stylesheet" href="/ai-prompts/css/animations.css">
+    <title>AI提示词库 - 首页</title>
+    <link rel="icon" href="./icons/icon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="./icons/icon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #0a84ff, #00b4d8);
+            color: white;
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-description {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .features-section {
+            padding: 80px 0;
+            background: #f5f5f7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #0a84ff;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1d1d1f;
+        }
+
+        .feature-description {
+            font-size: 1.1rem;
+            color: #86868b;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .feature-link {
+            display: inline-flex;
+            align-items: center;
+            color: #0a84ff;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .feature-link:hover {
+            color: #0056b3;
+        }
+
+        .feature-link i {
+            margin-left: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-description {
+                font-size: 1.2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                padding: 30px;
+            }
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #1d1d1f;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: #0a84ff;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            padding: 8px;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 16px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-background);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+                padding: 0 20px;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+                padding: 0 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+            }
+
+            .nav-container {
+                padding: 0 16px;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                background: var(--card-background);
+                padding: 16px;
+                flex-direction: column;
+                gap: 16px;
+                transform: translateY(-100%);
+                transition: transform 0.3s ease;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .nav-links.show {
+                transform: translateY(0);
+            }
+
+            .menu-toggle {
+                display: block;
+                font-size: 1.5rem;
+                padding: 8px;
+                color: var(--text-primary);
+                cursor: pointer;
+            }
+        }
+
+        /* 新增资料下载卡片 */
+        .feature-card.resources {
+            background: linear-gradient(135deg, #34D399, #3B82F6);
+            color: white;
+        }
+
+        .feature-card.resources .feature-title,
+        .feature-card.resources .feature-description,
+        .feature-card.resources .feature-link {
+            color: white;
+        }
+
+        .feature-card.resources:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+        }
+
+        /* 数据统计样式 */
+        .stats-section {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #f5f5f7, #e5e5e5);
+            margin-top: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+    </style>
     <script>
         // 注册 Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/ai-prompts/sw.js', {
-                    scope: '/ai-prompts/'
-                })
+                navigator.serviceWorker.register('sw.js')
                     .then(registration => {
                         console.log('ServiceWorker registration successful:', registration);
                     })
@@ -32,293 +320,142 @@
     </script>
   </head>
   <body>
-    <header class="glass-effect">
-        <nav class="main-nav">
-            <div class="logo">AI提示词库</div>
-            <div class="search-container">
-                <input type="search" id="search" placeholder="搜索提示词...">
-            </div>
-            <div class="header-actions">
-                <button class="new-prompt-btn" id="newPromptBtn" title="新建提示词">
-                    ✨ 新建提示词
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">AI提示词库</a>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-links">
+                <a href="prompts.html" class="nav-link">提示词库</a>
+                <a href="workflow.html" class="nav-link">工作流</a>
+                <a href="resources.html" class="nav-link">资料下载</a>
+                <a href="https://github.com/Myyjs1/ai-prompts" target="_blank" class="nav-link">GitHub</a>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
                 </button>
-                <button class="import-export-btn" id="importExportBtn" title="导入/导出">
-                    📥 导入/导出
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <div class="welcome-banner" id="welcomeBanner">
-        <div class="welcome-content">
-            <span class="welcome-icon">🎉</span>
-            <span class="welcome-text">欢迎使用AI提示词库！我们诚邀您分享您的优质提示词，一起助力AI创作效率的提升。</span>
-        </div>
-        <button class="close-banner" id="closeBanner" title="关闭消息">×</button>
-    </div>
-
-    <div class="layout-container">
-        <aside class="sidebar glass-effect">
-            <div class="category-list">
-                <div class="category-item active" data-category="all">
-                    <span class="category-icon">🏠</span>
-                    <span class="category-name">全部提示词</span>
-                </div>
-                <!-- 分类列表将通过JavaScript动态加载 -->
-            </div>
-        </aside>
-
-        <main>
-            <div class="category-info">
-                <h2 class="category-title">全部提示词</h2>
-                <p class="category-description">浏览所有可用的AI提示词</p>
-            </div>
-            <div class="prompts-container" id="promptsContainer">
-                <!-- 提示词卡片将通过JavaScript动态加载 -->
-            </div>
-        </main>
-
-        <aside class="editor-panel glass-effect" id="editorPanel">
-            <div class="editor-header">
-                <h3>编辑提示词</h3>
-                <button class="close-editor">×</button>
-            </div>
-            <div class="editor-content">
-                <div class="editor-section">
-                    <label for="promptEditor">提示词内容：</label>
-                    <textarea id="promptEditor" rows="10" placeholder="在这里编辑提示词内容..."></textarea>
-                </div>
-                <div class="editor-section">
-                    <label for="variableInput">变量替换：</label>
-                    <div class="variable-list" id="variableList">
-                        <!-- 变量输入框将通过JavaScript动态加载 -->
-                    </div>
-                </div>
-                <div class="editor-actions">
-                    <button class="preview-btn">预览</button>
-                    <button class="copy-btn">复制</button>
-                </div>
-            </div>
-            <div class="preview-section" id="previewSection">
-                <h4>预览：</h4>
-                <pre class="preview-content"></pre>
-            </div>
-        </aside>
-    </div>
-
-    <footer>
-        <p>© 2024 AI提示词库 | <a href="https://github.com/Myyjs1/ai-prompts" target="_blank">GitHub</a></p>
-    </footer>
-
-    <div class="toast" id="copyToast">已复制到剪贴板</div>
-
-    <!-- 新建提示词对话框 -->
-    <div class="modal" id="newPromptModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>新建提示词</h3>
-                <button class="close-modal">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="newPromptForm">
-                    <div class="form-group">
-                        <label for="promptTitle" class="required">标题</label>
-                        <input type="text" id="promptTitle" required placeholder="请输入提示词标题">
-                        <div class="error-message">请输入标题</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="promptCategory" class="required">分类</label>
-                        <select id="promptCategory" required>
-                            <option value="">请选择分类</option>
-                            <!-- 分类选项将通过JavaScript动态加载 -->
-                        </select>
-                        <div class="error-message">请选择分类</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="promptContent" class="required">内容</label>
-                        <textarea id="promptContent" rows="6" required placeholder="请输入提示词内容"></textarea>
-                        <div class="error-message">请输入内容</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="promptTags">标签（用逗号分隔）</label>
-                        <input type="text" id="promptTags" placeholder="例如：翻译,写作,编程">
-                    </div>
-                    <div class="form-group">
-                        <label for="promptUsage">使用说明</label>
-                        <textarea id="promptUsage" rows="3" placeholder="请输入使用说明（可选）"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="promptExample">使用示例</label>
-                        <textarea id="promptExample" rows="3" placeholder="请输入使用示例（可选）"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="cancel-btn">取消</button>
-                <div class="action-buttons">
-                    <button type="button" class="submit-github-btn">
-                        <span>📮</span> 提交到GitHub
-                    </button>
-                    <button type="button" class="save-btn">
-                        <span>💾</span> 保存到本地
-                    </button>
-                </div>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <!-- 导入/导出对话框 -->
-    <div class="modal" id="importExportModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>导入/导出提示词</h3>
-                <button class="close-modal">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="import-export-actions">
-                    <div class="local-actions">
-                        <h4>本地备份</h4>
-                        <button class="export-btn">
-                            <span>📤</span> 导出到本地文件
-                        </button>
-                        <div class="import-section">
-                            <label for="importFile" class="import-label">
-                                <span>📥</span> 从本地文件导入
-                            </label>
-                            <input type="file" id="importFile" accept=".json" style="display: none;">
-                        </div>
-                    </div>
-                    
-                    <div class="webdav-actions">
-                        <h4>WebDAV 同步</h4>
-                        <div class="webdav-notice">
-                            <div class="notice-header">
-                                <span class="notice-icon">⚠️</span>
-                                <h5>为什么需要本地代理服务器？</h5>
-                            </div>
-                            <ul class="notice-list">
-                                <li>浏览器的同源策略限制：出于安全考虑，浏览器不允许网页直接访问不同域名的 WebDAV 服务器</li>
-                                <li>CORS 限制：大多数 WebDAV 服务器（如坚果云）没有配置 CORS 头，导致浏览器无法直接访问</li>
-                                <li>安全性考虑：使用本地代理服务器比使用公共代理服务更安全，因为敏感数据只在本地传输</li>
-                            </ul>
-                            <div class="proxy-setup">
-                                <h5>使用步骤</h5>
-                                <ol class="setup-steps">
-                                    <li>
-                                        <strong>安装 Node.js</strong>
-                                        <p>访问 <a href="https://nodejs.org/" target="_blank">Node.js 官网</a> 下载并安装适合你系统的版本</p>
-                                    </li>
-                                    <li>
-                                        <strong>下载并解压代理服务器</strong>
-                                        <a href="proxy-server.zip" class="download-proxy-btn">
-                                            <span>⬇️</span> 下载代理服务器
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <strong>启动代理服务器</strong>
-                                        <div class="code-block">
-                                            <code>npm install</code>
-                                            <code>npm start</code>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <strong>配置 WebDAV</strong>
-                                        <p>在下方配置中使用以下格式的地址：</p>
-                                        <div class="code-block">
-                                            <code>http://localhost:3000/proxy/你的WebDAV服务器地址</code>
-                                        </div>
-                                        <p>例如，坚果云的地址：</p>
-                                        <div class="code-block">
-                                            <code>http://localhost:3000/proxy/dav.jianguoyun.com/dav</code>
-                                        </div>
-                                    </li>
-                                </ol>
-                            </div>
-                            <div class="notice-tips">
-                                <h5>注意事项</h5>
-                                <ul class="tips-list">
-                                    <li>代理服务器仅供本地使用，不要在公网环境部署</li>
-                                    <li>确保 3000 端口未被其他程序占用</li>
-                                    <li>使用完毕后可以关闭代理服务器</li>
-                                    <li>代理服务器不会保存任何用户数据</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="webdav-config">
-                            <div class="form-group">
-                                <label for="webdavUrl">WebDAV 地址</label>
-                                <input type="url" id="webdavUrl" placeholder="https://your-webdav-server.com/path">
-                            </div>
-                            <div class="form-group">
-                                <label for="webdavUsername">用户名</label>
-                                <input type="text" id="webdavUsername">
-                            </div>
-                            <div class="form-group">
-                                <label for="webdavPassword">密码</label>
-                                <input type="password" id="webdavPassword">
-                            </div>
-                            <div class="form-group">
-                                <label for="webdavFilename">文件名</label>
-                                <input type="text" id="webdavFilename" value="prompts-backup.json">
-                            </div>
-                            <button class="save-webdav-config">保存配置</button>
-                        </div>
-                        <div class="webdav-operations">
-                            <button class="backup-to-webdav-btn">
-                                <span>☁️</span> 备份到 WebDAV
-                            </button>
-                            <button class="restore-from-webdav-btn">
-                                <span>⬇️</span> 从 WebDAV 恢复
-                            </button>
-                        </div>
-                    </div>
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">提升AI对话效率的最佳助手</h1>
+            <p class="hero-description">
+                收集和管理高质量AI提示词，让AI更好地理解你的需求，提供精准的回答
+            </p>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card" onclick="window.location.href='prompts.html'">
+                <div class="feature-icon">
+                    <i class="fas fa-magic"></i>
                 </div>
+                <h3 class="feature-title">提示词库</h3>
+                <p class="feature-description">
+                    海量优质提示词，涵盖编程、写作、绘画等多个领域，助你快速找到合适的提示词
+                </p>
+                <a href="prompts.html" class="feature-link">
+                    立即使用 <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="feature-card" onclick="window.location.href='workflow.html'">
+                <div class="feature-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 class="feature-title">工作流</h3>
+                <p class="feature-description">
+                    系统化的提示词工作流，帮助你更高效地完成复杂任务，提升工作效率
+                </p>
+                <a href="workflow.html" class="feature-link">
+                    开始使用 <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="feature-card resources" onclick="window.location.href='resources.html'">
+                <div class="feature-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3 class="feature-title">资料下载</h3>
+                <p class="feature-description">
+                    丰富的AI学习资料，包括教程、电子书、实践案例等，助你快速掌握AI应用技能
+                </p>
+                <a href="resources.html" class="feature-link">
+                    立即下载 <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- 编辑提示词模态框 -->
-    <div id="editPromptModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>编辑提示词</h2>
-                <button class="close-modal">&times;</button>
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">24</div>
+                <div class="stat-label">优质提示词</div>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="editPromptTitle">标题</label>
-                    <input type="text" id="editPromptTitle" placeholder="输入提示词标题">
-                </div>
-                <div class="form-group">
-                    <label for="editPromptContent">提示词内容</label>
-                    <textarea id="editPromptContent" placeholder="输入提示词内容"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="editPromptUsage">使用说明（可选）</label>
-                    <textarea id="editPromptUsage" placeholder="输入使用说明"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="editPromptExample">使用示例（可选）</label>
-                    <textarea id="editPromptExample" placeholder="输入使用示例"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="editPromptTags">标签（用逗号分隔）</label>
-                    <input type="text" id="editPromptTags" placeholder="输入标签，用逗号分隔">
-                </div>
-                <div class="form-group">
-                    <label for="editPromptCategory">分类</label>
-                    <select id="editPromptCategory">
-                        <!-- 分类选项将通过 JavaScript 动态填充 -->
-                    </select>
-                </div>
+            <div class="stat-item">
+                <div class="stat-number">9</div>
+                <div class="stat-label">工作流模板</div>
             </div>
-            <div class="modal-footer">
-                <button class="copy-content-btn">复制提示词</button>
-                <button class="save-local-btn">保存到本地</button>
+            <div class="stat-item">
+                <div class="stat-number">4</div>
+                <div class="stat-label">学习资料</div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="js/main.js"></script>
+    <script>
+        // 主题切换
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            themeToggle.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('theme') || (prefersDarkScheme.matches ? 'dark' : 'light');
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        // 移动端菜单
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('show');
+            menuToggle.innerHTML = navLinks.classList.contains('show') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // 点击导航链接后关闭菜单
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('show');
+                menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.nav-bar');
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(255, 255, 255, 0.95)';
+                nav.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+            } else {
+                nav.style.background = 'rgba(255, 255, 255, 0.8)';
+                nav.style.boxShadow = 'none';
+            }
+        });
+    </script>
   </body>
 </html> 

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="AI提示词工作流 - 管理多步骤AI提示词">
+    <meta name="theme-color" content="#007AFF">
+    <title>AI提示词工作流</title>
+    <link rel="icon" href="icons/icon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="icons/icon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  </head>
+  <body>
+    <header class="glass-effect">
+      <nav class="main-nav">
+        <div class="logo">AI提示词工作流</div>
+        <div class="search-container">
+          <input type="search" id="search" placeholder="搜索工作流...">
+        </div>
+        <div class="header-actions">
+          <button class="new-prompt-btn" id="newWorkflowBtn" title="新建工作流">
+            <span>✨</span>
+            <span class="btn-text">新建工作流</span>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <div class="layout-container">
+      <aside class="sidebar glass-effect">
+        <div class="category-list">
+          <div class="category-item active" data-category="all">
+            <span class="category-icon">🏠</span>
+            <span class="category-name">全部工作流</span>
+          </div>
+          <!-- 分类列表将通过JavaScript动态加载 -->
+        </div>
+      </aside>
+
+      <main>
+        <div class="category-info">
+          <h2 class="category-title">全部工作流</h2>
+          <p class="category-description">浏览所有可用的AI提示词工作流</p>
+        </div>
+        <div class="workflow-container">
+          <!-- 工作流卡片将通过JavaScript动态加载 -->
+        </div>
+      </main>
+    </div>
+
+    <!-- 工作流详情模态框 -->
+    <div class="modal workflow-detail-modal" id="workflowDetailModal">
+      <div class="modal-content workflow-detail-content">
+        <div class="modal-header">
+          <div class="workflow-detail-title">
+            <h3></h3>
+            <div class="workflow-meta">
+              <span class="workflow-category"></span>
+              <div class="workflow-tags"></div>
+            </div>
+          </div>
+          <button class="close-modal">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="workflow-description"></div>
+          <div class="workflow-steps"></div>
+        </div>
+        <div class="modal-footer">
+          <span class="workflow-date"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新建工作流对话框 -->
+    <div class="modal" id="newWorkflowModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>新建工作流</h3>
+          <button class="close-modal" id="closeWorkflowModal">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="workflowForm">
+            <div class="form-group">
+              <label for="workflowTitle" class="required">标题</label>
+              <input type="text" id="workflowTitle" required placeholder="请输入工作流标题">
+              <div class="error-message">请输入标题</div>
+            </div>
+            <div class="form-group">
+              <label for="workflowCategory" class="required">分类</label>
+              <select id="workflowCategory" required>
+                <option value="">请选择分类</option>
+                <option value="writing">写作</option>
+                <option value="programming">编程</option>
+                <option value="art">绘画</option>
+                <option value="business">商业</option>
+                <option value="education">教育</option>
+              </select>
+              <div class="error-message">请选择分类</div>
+            </div>
+            <div class="form-group">
+              <label for="workflowDescription">描述</label>
+              <textarea id="workflowDescription" rows="3" placeholder="请输入工作流描述（可选）"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="workflowTags">标签（用逗号分隔）</label>
+              <input type="text" id="workflowTags" placeholder="例如：小说创作,写作,创意">
+            </div>
+            <div class="form-group">
+              <label class="required">工作流步骤</label>
+              <div class="workflow-steps-list">
+                <!-- 步骤将通过JavaScript动态添加 -->
+              </div>
+              <button type="button" class="add-step-btn">
+                <span>➕</span> 添加步骤
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="cancel-btn" id="cancelWorkflowBtn">取消</button>
+          <div class="action-buttons">
+            <button type="button" class="submit-github-btn" id="submitWorkflowGithubBtn">
+              <span>📮</span> 提交到GitHub
+            </button>
+            <button type="button" class="save-btn" id="saveWorkflowBtn">
+              <span>💾</span> 保存到本地
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/workflow.js"></script>
+  </body>
+</html> 

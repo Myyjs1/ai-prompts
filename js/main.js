@@ -507,12 +507,16 @@ function initializeEventListeners() {
     if (newPromptBtn) {
         newPromptBtn.addEventListener('click', () => {
             const newPromptModal = document.getElementById('newPromptModal');
-            newPromptModal.classList.add('show');
-            // 加载分类选项
-            const categorySelect = document.getElementById('promptCategory');
-            categorySelect.innerHTML = categories.map(category => 
-                `<option value="${category.id}">${category.name}</option>`
-            ).join('');
+            if (newPromptModal) {
+                newPromptModal.classList.add('show');
+                // 加载分类选项
+                const categorySelect = document.getElementById('promptCategory');
+                if (categorySelect) {
+                    categorySelect.innerHTML = categories.map(category => 
+                        `<option value="${category.id}">${category.name}</option>`
+                    ).join('');
+                }
+            }
         });
     }
 
@@ -521,7 +525,9 @@ function initializeEventListeners() {
     if (importExportBtn) {
         importExportBtn.addEventListener('click', () => {
             const importExportModal = document.getElementById('importExportModal');
-            importExportModal.classList.add('show');
+            if (importExportModal) {
+                importExportModal.classList.add('show');
+            }
         });
     }
 }
