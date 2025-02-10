@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="AI提示词库 - 收集优质AI提示词，提升AI对话效率">
+    <meta name="keywords" content="AI提示词, Prompts, ChatGPT, AI绘画, AI编程, AI写作">
+    <meta name="theme-color" content="#007AFF">
+    <title>AI提示词库</title>
+    <link rel="icon" href="./icons/icon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="./icons/icon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/animations.css">
+    <script>
+        // 注册 Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful:', registration);
+                    })
+                    .catch(err => {
+                        console.error('ServiceWorker registration failed:', err);
+                    });
+            });
+        }
+    </script>
+  </head>
+  <body>
+    <header class="glass-effect">
+        <nav class="main-nav">
+            <div class="logo">AI提示词库</div>
+            <div class="search-container">
+                <input type="search" id="search" placeholder="搜索提示词...">
+            </div>
+            <div class="header-actions">
+                <button class="new-prompt-btn" id="newPromptBtn" title="新建提示词">
+                    <span>✨</span>
+                    <span class="btn-text">新建提示词</span>
+                </button>
+                <button class="import-export-btn" id="importExportBtn" title="导入/导出">
+                    <span>📥</span>
+                    <span class="btn-text">导入/导出</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="welcome-banner" id="welcomeBanner">
+        <div class="welcome-content">
+            <span class="welcome-icon">🎉</span>
+            <span class="welcome-text">欢迎使用AI提示词库！我们诚邀您分享您的优质提示词，一起助力AI创作效率的提升。</span>
+        </div>
+        <button class="close-banner" id="closeBanner" title="关闭消息">×</button>
+    </div>
+
+    <div class="layout-container">
+        <aside class="sidebar glass-effect">
+            <div class="category-list">
+                <div class="category-item active" data-category="all">
+                    <span class="category-icon">🏠</span>
+                    <span class="category-name">全部提示词</span>
+                </div>
+                <!-- 分类列表将通过JavaScript动态加载 -->
+            </div>
+        </aside>
+
+        <main>
+            <div class="category-info">
+                <h2 class="category-title">全部提示词</h2>
+                <p class="category-description">浏览所有可用的AI提示词</p>
+            </div>
+            <div class="prompts-container" id="promptsContainer">
+                <!-- 提示词卡片将通过JavaScript动态加载 -->
+            </div>
+        </main>
+
+        <aside class="editor-panel glass-effect" id="editorPanel">
+            <div class="editor-header">
+                <h3>编辑提示词</h3>
+                <button class="close-editor">×</button>
+            </div>
+            <div class="editor-content">
+                <div class="editor-section">
+                    <label for="promptEditor">提示词内容：</label>
+                    <textarea id="promptEditor" rows="10" placeholder="在这里编辑提示词内容..."></textarea>
+                </div>
+                <div class="editor-section">
+                    <label for="variableInput">变量替换：</label>
+                    <div class="variable-list" id="variableList">
+                        <!-- 变量输入框将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+                <div class="editor-actions">
+                    <button class="preview-btn">预览</button>
+                    <button class="copy-btn">复制</button>
+                </div>
+            </div>
+            <div class="preview-section" id="previewSection">
+                <h4>预览：</h4>
+                <pre class="preview-content"></pre>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <p>© 2024 AI提示词库 | <a href="https://github.com/Myyjs1/ai-prompts" target="_blank">GitHub</a></p>
+    </footer>
+
+    <div class="toast" id="copyToast">已复制到剪贴板</div>
+
+    <!-- 新建提示词对话框 -->
+    <div class="modal" id="newPromptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建提示词</h3>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="newPromptForm">
+                    <div class="form-group">
+                        <label for="promptTitle" class="required">标题</label>
+                        <input type="text" id="promptTitle" required placeholder="请输入提示词标题">
+                        <div class="error-message">请输入标题</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="promptCategory" class="required">分类</label>
+                        <select id="promptCategory" required>
+                            <option value="">请选择分类</option>
+                            <!-- 分类选项将通过JavaScript动态加载 -->
+                        </select>
+                        <div class="error-message">请选择分类</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="promptContent" class="required">内容</label>
+                        <textarea id="promptContent" rows="6" required placeholder="请输入提示词内容"></textarea>
+                        <div class="error-message">请输入内容</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="promptTags">标签（用逗号分隔）</label>
+                        <input type="text" id="promptTags" placeholder="例如：翻译,写作,编程">
+                    </div>
+                    <div class="form-group">
+                        <label for="promptUsage">使用说明</label>
+                        <textarea id="promptUsage" rows="3" placeholder="请输入使用说明（可选）"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="promptExample">使用示例</label>
+                        <textarea id="promptExample" rows="3" placeholder="请输入使用示例（可选）"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn">取消</button>
+                <div class="action-buttons">
+                    <button type="button" class="submit-github-btn">
+                        <span>📮</span> 提交到GitHub
+                    </button>
+                    <button type="button" class="save-btn">
+                        <span>💾</span> 保存到本地
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入/导出对话框 -->
+    <div class="modal" id="importExportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>导入/导出提示词</h3>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="import-export-actions">
+                    <div class="local-actions">
+                        <h4>本地备份</h4>
+                        <button class="export-btn">
+                            <span>📤</span> 导出到本地文件
+                        </button>
+                        <div class="import-section">
+                            <label for="importFile" class="import-label">
+                                <span>📥</span> 从本地文件导入
+                            </label>
+                            <input type="file" id="importFile" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="webdav-actions">
+                        <h4>WebDAV 同步</h4>
+                        <div class="webdav-notice">
+                            <div class="notice-header">
+                                <span class="notice-icon">⚠️</span>
+                                <h5>为什么需要本地代理服务器？</h5>
+                            </div>
+                            <ul class="notice-list">
+                                <li>浏览器的同源策略限制：出于安全考虑，浏览器不允许网页直接访问不同域名的 WebDAV 服务器</li>
+                                <li>CORS 限制：大多数 WebDAV 服务器（如坚果云）没有配置 CORS 头，导致浏览器无法直接访问</li>
+                                <li>安全性考虑：使用本地代理服务器比使用公共代理服务更安全，因为敏感数据只在本地传输</li>
+                            </ul>
+                            <div class="proxy-setup">
+                                <h5>使用步骤</h5>
+                                <ol class="setup-steps">
+                                    <li>
+                                        <strong>安装 Node.js</strong>
+                                        <p>访问 <a href="https://nodejs.org/" target="_blank">Node.js 官网</a> 下载并安装适合你系统的版本</p>
+                                    </li>
+                                    <li>
+                                        <strong>下载并解压代理服务器</strong>
+                                        <a href="proxy-server.zip" class="download-proxy-btn">
+                                            <span>⬇️</span> 下载代理服务器
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <strong>启动代理服务器</strong>
+                                        <div class="code-block">
+                                            <code>npm install</code>
+                                            <code>npm start</code>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <strong>配置 WebDAV</strong>
+                                        <p>在下方配置中使用以下格式的地址：</p>
+                                        <div class="code-block">
+                                            <code>http://localhost:3000/proxy/你的WebDAV服务器地址</code>
+                                        </div>
+                                        <p>例如，坚果云的地址：</p>
+                                        <div class="code-block">
+                                            <code>http://localhost:3000/proxy/dav.jianguoyun.com/dav</code>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="notice-tips">
+                                <h5>注意事项</h5>
+                                <ul class="tips-list">
+                                    <li>代理服务器仅供本地使用，不要在公网环境部署</li>
+                                    <li>确保 3000 端口未被其他程序占用</li>
+                                    <li>使用完毕后可以关闭代理服务器</li>
+                                    <li>代理服务器不会保存任何用户数据</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="webdav-config">
+                            <div class="form-group">
+                                <label for="webdavUrl">WebDAV 地址</label>
+                                <input type="url" id="webdavUrl" placeholder="https://your-webdav-server.com/path">
+                            </div>
+                            <div class="form-group">
+                                <label for="webdavUsername">用户名</label>
+                                <input type="text" id="webdavUsername">
+                            </div>
+                            <div class="form-group">
+                                <label for="webdavPassword">密码</label>
+                                <input type="password" id="webdavPassword">
+                            </div>
+                            <div class="form-group">
+                                <label for="webdavFilename">文件名</label>
+                                <input type="text" id="webdavFilename" value="prompts-backup.json">
+                            </div>
+                            <button class="save-webdav-config">保存配置</button>
+                        </div>
+                        <div class="webdav-operations">
+                            <button class="backup-to-webdav-btn">
+                                <span>☁️</span> 备份到 WebDAV
+                            </button>
+                            <button class="restore-from-webdav-btn">
+                                <span>⬇️</span> 从 WebDAV 恢复
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑提示词模态框 -->
+    <div id="editPromptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>编辑提示词</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editPromptTitle">标题</label>
+                    <input type="text" id="editPromptTitle" placeholder="输入提示词标题">
+                </div>
+                <div class="form-group">
+                    <label for="editPromptContent">提示词内容</label>
+                    <textarea id="editPromptContent" placeholder="输入提示词内容"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editPromptUsage">使用说明（可选）</label>
+                    <textarea id="editPromptUsage" placeholder="输入使用说明"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editPromptExample">使用示例（可选）</label>
+                    <textarea id="editPromptExample" placeholder="输入使用示例"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editPromptTags">标签（用逗号分隔）</label>
+                    <input type="text" id="editPromptTags" placeholder="输入标签，用逗号分隔">
+                </div>
+                <div class="form-group">
+                    <label for="editPromptCategory">分类</label>
+                    <select id="editPromptCategory">
+                        <!-- 分类选项将通过 JavaScript 动态填充 -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="copy-content-btn">复制提示词</button>
+                <button class="save-local-btn">保存到本地</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+  </body>
+</html> 

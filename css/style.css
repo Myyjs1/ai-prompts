@@ -1,0 +1,1919 @@
+:root {
+    /* Light theme */
+    --primary-color: #007AFF;
+    --primary-color-dark: #0056b3;
+    --secondary-color: #5856D6;
+    --background-color: #ffffff;
+    --card-background: #ffffff;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --border-color: #e5e5e5;
+    --tag-background: #f5f5f7;
+    --hover-background: rgba(0, 0, 0, 0.05);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --border-radius: 12px;
+    --spacing-unit: 8px;
+    --header-height: 60px;
+    --sidebar-width: 260px;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --primary-color: #0A84FF;
+    --primary-color-dark: #0056b3;
+    --secondary-color: #5E5CE6;
+    --background-color: #1c1c1e;
+    --card-background: #2c2c2e;
+    --text-primary: #ffffff;
+    --text-secondary: #98989d;
+    --border-color: #38383a;
+    --tag-background: #3a3a3c;
+    --hover-background: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    padding: 8px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-left: 16px;
+}
+
+/* Prompt card styles */
+.prompt-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.prompt-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    flex: 1;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    padding: 4px;
+    transition: color 0.3s ease;
+}
+
+.favorite-btn.active {
+    color: #FFD700;
+}
+
+.prompt-content-section,
+.prompt-usage-section,
+.prompt-example-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.prompt-content-section h4,
+.prompt-usage-section h4,
+.prompt-example-section h4 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.prompt-content,
+.prompt-usage {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.prompt-example {
+    background-color: var(--code-background);
+    padding: 12px;
+    border-radius: 6px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.9rem;
+    position: relative;
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 8px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary-color) var(--background-color);
+}
+
+.prompt-example::-webkit-scrollbar {
+    width: 8px;
+}
+
+.prompt-example::-webkit-scrollbar-track {
+    background: var(--background-color);
+    border-radius: 4px;
+}
+
+.prompt-example::-webkit-scrollbar-thumb {
+    background-color: var(--secondary-color);
+    border-radius: 4px;
+    border: 2px solid var(--background-color);
+}
+
+.prompt-example::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
+}
+
+.prompt-tags {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.prompt-tag {
+    background-color: var(--tag-background);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.prompt-tag:hover {
+    background-color: var(--hover-background);
+}
+
+.prompt-tag.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.prompt-tag.local-tag {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    border-radius: 3px;
+    cursor: default;
+}
+
+.prompt-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.usage-count {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.copy-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header Styles */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.main-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-unit);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 500px;
+}
+
+#search {
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+#search:focus {
+    background-color: rgba(0, 0, 0, 0.08);
+    outline: none;
+}
+
+/* Layout */
+.layout-container {
+    display: flex;
+    margin-top: var(--header-height);
+    min-height: calc(100vh - var(--header-height));
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: var(--header-height);
+    bottom: 0;
+    width: var(--sidebar-width);
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 0;
+}
+
+.category-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.category-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.category-icon {
+    margin-right: 12px;
+    font-size: 1.2em;
+}
+
+.category-name {
+    font-size: 0.95rem;
+}
+
+/* Main Content */
+main {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 20px;
+    max-width: calc(1200px + var(--sidebar-width));
+}
+
+.category-info {
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.category-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.prompts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 2000;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-left: var(--sidebar-width);
+}
+
+footer a:hover {
+    color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 0px;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+        width: 80%;
+        z-index: 900;
+    }
+
+    .main-nav {
+        padding: 10px;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    main {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .prompts-container {
+        grid-template-columns: 1fr;
+    }
+
+    footer {
+        margin-left: 0;
+    }
+
+    /* 添加移动端菜单按钮 */
+    .menu-btn {
+        display: block;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+}
+
+/* Editor Panel */
+.editor-panel {
+    position: fixed;
+    right: 0;
+    top: var(--header-height);
+    bottom: 0;
+    width: 400px;
+    background-color: var(--card-background);
+    border-left: 1px solid var(--border-color);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editor-panel.show {
+    transform: translateX(0);
+}
+
+.editor-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.close-editor {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+}
+
+.editor-content {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.editor-section label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+#promptEditor {
+    width: 100%;
+    min-height: 150px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    resize: vertical;
+}
+
+.variable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.variable-item {
+    display: flex;
+    gap: 8px;
+}
+
+.variable-item input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.preview-btn,
+.editor-actions .copy-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.preview-btn {
+    background-color: var(--tag-background);
+    color: var(--text-primary);
+}
+
+.editor-actions .copy-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.preview-section {
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--background-color);
+}
+
+.preview-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.preview-content {
+    padding: 12px;
+    background-color: var(--card-background);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* Adjust main content when editor is open */
+main {
+    transition: margin-right 0.3s ease;
+}
+
+main.editor-open {
+    margin-right: 400px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .editor-panel {
+        width: 320px;
+    }
+    
+    main.editor-open {
+        margin-right: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .editor-panel {
+        width: 100%;
+    }
+    
+    main.editor-open {
+        margin-right: 0;
+    }
+}
+
+.submit-prompt-btn {
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.submit-prompt-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+@media (max-width: 768px) {
+    .submit-prompt-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
+
+.prompt-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.prompt-author-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.prompt-author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.prompt-author-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.prompt-author-username {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.prompt-author-github {
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.prompt-author-github:hover {
+    color: var(--primary-color);
+}
+
+.github-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
+/* Welcome Banner */
+.welcome-banner {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    z-index: 900;
+    transition: transform 0.3s ease;
+}
+
+.welcome-banner.hidden {
+    transform: translateY(-100%);
+}
+
+.welcome-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex: 1;
+}
+
+.welcome-icon {
+    font-size: 1.2em;
+}
+
+.welcome-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.close-banner {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.close-banner:hover {
+    opacity: 1;
+}
+
+/* Adjust layout when banner is visible */
+.layout-container {
+    transition: margin-top 0.3s ease;
+}
+
+.layout-container.banner-visible {
+    margin-top: 50px;
+}
+
+@media (max-width: 768px) {
+    .welcome-text {
+        font-size: 0.85rem;
+    }
+    
+    .layout-container.banner-visible {
+        margin-top: 70px;
+    }
+}
+
+/* 新建提示词按钮 */
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.new-prompt-btn,
+.import-export-btn {
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+.new-prompt-btn span,
+.import-export-btn span {
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-text {
+    font-weight: 500;
+}
+
+.new-prompt-btn:hover,
+.import-export-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.new-prompt-btn:active,
+.import-export-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .header-actions {
+        gap: 4px;
+        margin-left: 8px;
+    }
+
+    .new-prompt-btn,
+    .import-export-btn {
+        padding: 6px 8px;
+        font-size: 0.85rem;
+        min-width: auto;
+    }
+
+    .btn-text {
+        display: none !important;
+    }
+
+    .main-nav {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .search-container {
+        max-width: 140px;
+    }
+
+    .logo {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions {
+        gap: 2px;
+        margin-left: 4px;
+    }
+
+    .new-prompt-btn,
+    .import-export-btn {
+        padding: 4px 6px;
+    }
+
+    .search-container {
+        max-width: 120px;
+    }
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.3s ease;
+}
+
+.close-modal:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.cancel-btn,
+.save-btn,
+.submit-github-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cancel-btn {
+    background-color: var(--tag-background);
+    color: var(--text-primary);
+    border: none;
+}
+
+.save-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.submit-github-btn {
+    background-color: #24292e;
+    color: white;
+    border: none;
+}
+
+.cancel-btn:hover {
+    background-color: var(--hover-background);
+}
+
+.save-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.submit-github-btn:hover {
+    background-color: #2f363d;
+}
+
+/* 导入导出样式 */
+.import-export-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.local-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+}
+
+.local-actions h4 {
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.export-btn,
+.import-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.export-btn:hover,
+.import-label:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.export-btn span,
+.import-label span {
+    font-size: 1.2rem;
+}
+
+.import-section {
+    position: relative;
+}
+
+.import-label {
+    width: 100%;
+    background-color: var(--tag-background);
+    color: var(--text-primary);
+}
+
+.import-label:hover {
+    background-color: var(--hover-background);
+}
+
+@media (max-width: 768px) {
+    .local-actions {
+        padding: 12px;
+    }
+
+    .export-btn,
+    .import-label {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.form-group input[type="text"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group select {
+    appearance: none;
+    padding-right: 32px;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+}
+
+.form-group input[type="text"]::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* 必填字段标记 */
+.form-group label.required::after {
+    content: "*";
+    color: #ff3b30;
+    margin-left: 4px;
+}
+
+/* 表单验证样式 */
+.form-group input:invalid,
+.form-group select:invalid,
+.form-group textarea:invalid {
+    border-color: #ff3b30;
+}
+
+.form-group .error-message {
+    color: #ff3b30;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    display: none;
+}
+
+.form-group input:invalid + .error-message,
+.form-group select:invalid + .error-message,
+.form-group textarea:invalid + .error-message {
+    display: block;
+}
+
+/* 提示词卡片操作按钮 */
+.prompt-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.edit-prompt-btn,
+.delete-prompt-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+    background-color: var(--tag-background);
+}
+
+.edit-prompt-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.delete-prompt-btn:hover {
+    background-color: #ff3b30;
+    color: white;
+}
+
+/* WebDAV 样式 */
+.webdav-actions {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.webdav-actions h4 {
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.local-actions h4 {
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.webdav-config {
+    background-color: var(--background-color);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.webdav-config .form-group {
+    margin-bottom: 12px;
+}
+
+.webdav-config input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--card-background);
+    color: var(--text-primary);
+}
+
+.save-webdav-config {
+    width: 100%;
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.save-webdav-config:hover {
+    background-color: var(--secondary-color);
+}
+
+.webdav-operations {
+    display: flex;
+    gap: 8px;
+}
+
+.backup-to-webdav-btn,
+.restore-from-webdav-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.backup-to-webdav-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.restore-from-webdav-btn {
+    background-color: var(--tag-background);
+    color: var(--text-primary);
+}
+
+.backup-to-webdav-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.restore-from-webdav-btn:hover {
+    background-color: var(--hover-background);
+}
+
+.webdav-notice {
+    background-color: var(--tag-background);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.notice-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.notice-icon {
+    font-size: 1.2rem;
+}
+
+.webdav-notice h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.notice-list,
+.tips-list {
+    list-style: disc;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+.notice-list li,
+.tips-list li {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.proxy-setup {
+    margin: 20px 0;
+}
+
+.setup-steps {
+    list-style: decimal;
+    margin-left: 20px;
+}
+
+.setup-steps li {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.setup-steps li strong {
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.setup-steps li p {
+    margin: 4px 0;
+}
+
+.code-block {
+    background-color: var(--card-background);
+    padding: 12px;
+    border-radius: 6px;
+    margin: 8px 0;
+}
+
+.code-block code {
+    display: block;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    line-height: 1.4;
+}
+
+.code-block code + code {
+    margin-top: 4px;
+}
+
+.download-proxy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    margin: 8px 0;
+    background-color: var(--tag-background);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.download-proxy-btn:hover {
+    background-color: var(--hover-background);
+    transform: translateY(-1px);
+}
+
+.prompt-example-section {
+    position: relative;
+}
+
+.copy-example-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    background-color: var(--tag-background);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.prompt-example-section:hover .copy-example-btn {
+    opacity: 1;
+}
+
+.copy-example-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.notice-tips {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.webdav-notice a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.webdav-notice a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .webdav-notice {
+        padding: 16px;
+    }
+
+    .setup-steps li {
+        margin-bottom: 20px;
+    }
+
+    .code-block {
+        padding: 8px;
+        overflow-x: auto;
+    }
+}
+
+.prompt-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.edit-prompt-modal-btn,
+.copy-header-btn,
+.favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.edit-prompt-modal-btn:hover,
+.copy-header-btn:hover {
+    background-color: var(--hover-background);
+}
+
+#editPromptModal .modal-content {
+    width: 90%;
+    max-width: 800px;
+}
+
+#editPromptModal .form-group {
+    margin-bottom: 20px;
+}
+
+#editPromptModal .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+#editPromptModal .form-group input,
+#editPromptModal .form-group textarea,
+#editPromptModal .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--background-color);
+    color: var(--text-primary);
+}
+
+#editPromptModal .form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+#editPromptModal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+#editPromptModal .modal-footer button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#editPromptModal .save-local-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+#editPromptModal .save-local-btn:hover {
+    background-color: var(--primary-color-dark);
+}
+
+#editPromptModal .copy-content-btn {
+    background-color: var(--tag-background);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+#editPromptModal .copy-content-btn:hover {
+    background-color: var(--hover-background);
+}
+
+/* Workflow Styles */
+.workflow-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.workflow-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.workflow-card:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.workflow-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.workflow-title {
+    flex: 1;
+}
+
+.workflow-title h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.workflow-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.workflow-category {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.workflow-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.workflow-tag {
+    background-color: var(--tag-background);
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.expand-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--text-secondary);
+}
+
+.expand-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.workflow-description {
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.workflow-steps {
+    padding: 16px;
+    display: none;
+}
+
+.workflow-step {
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: var(--hover-background);
+    border-radius: var(--border-radius);
+}
+
+.workflow-step:last-child {
+    margin-bottom: 0;
+}
+
+.step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.step-header h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.copy-step-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.copy-step-btn:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.step-content {
+    font-size: 0.95rem;
+}
+
+.step-prompt {
+    margin-bottom: 12px;
+}
+
+.step-prompt pre {
+    margin-top: 8px;
+    padding: 12px;
+    background-color: var(--card-background);
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.step-instruction {
+    color: var(--text-secondary);
+}
+
+.workflow-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .workflow-container {
+        grid-template-columns: 1fr;
+        padding: 12px;
+    }
+
+    .workflow-card {
+        margin-bottom: 16px;
+    }
+
+    .workflow-title h3 {
+        font-size: 1.1rem;
+    }
+
+    .step-header h4 {
+        font-size: 1rem;
+    }
+}
+
+.workflow-detail-modal .modal-content {
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.workflow-detail-content {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.workflow-detail-title {
+    flex: 1;
+}
+
+.workflow-detail-title h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+}
+
+.workflow-detail-modal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.workflow-detail-modal .workflow-description {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.workflow-detail-modal .workflow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.workflow-detail-modal .workflow-step {
+    background-color: var(--hover-background);
+    border-radius: var(--border-radius);
+    padding: 16px;
+}
+
+.workflow-detail-modal .step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.workflow-detail-modal .step-header h4 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.workflow-detail-modal .step-content {
+    font-size: 0.95rem;
+}
+
+.workflow-detail-modal .step-prompt {
+    margin-bottom: 12px;
+}
+
+.workflow-detail-modal .step-prompt pre {
+    background-color: var(--card-background);
+    padding: 12px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.workflow-detail-modal .step-instruction {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.workflow-detail-modal .modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .workflow-detail-modal .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .workflow-detail-modal .workflow-step {
+        padding: 12px;
+    }
+    
+    .workflow-detail-modal .step-header h4 {
+        font-size: 1rem;
+    }
+}
+
+.import-export-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: var(--button-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.import-export-btn:hover {
+    background-color: var(--button-hover-background);
+}
+
+.import-export-menu {
+    position: absolute;
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    z-index: 1000;
+    min-width: 160px;
+}
+
+.import-export-menu .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    width: 100%;
+    border: none;
+    background: none;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.import-export-menu .menu-item:hover {
+    background-color: var(--hover-background);
+}
+
+.import-export-menu .menu-item span {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .import-export-btn .btn-text {
+        display: none;
+    }
+    
+    .import-export-btn {
+        padding: 8px;
+    }
+    
+    .import-export-menu {
+        right: 16px;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* 工具提示 */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background: var(--card-background);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+[data-tooltip]:hover:before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-8px);
+} 

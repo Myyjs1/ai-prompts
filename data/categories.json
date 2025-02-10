@@ -1,0 +1,39 @@
+{
+    "categories": [
+        {
+            "id": "programming",
+            "name": "编程开发",
+            "icon": "💻",
+            "description": "编程相关的AI提示词",
+            "dataFile": "programming.json"
+        },
+        {
+            "id": "writing",
+            "name": "文章写作",
+            "icon": "✍️",
+            "description": "写作相关的AI提示词",
+            "dataFile": "writing.json"
+        },
+        {
+            "id": "art",
+            "name": "AI绘画",
+            "icon": "🎨",
+            "description": "绘画相关的AI提示词",
+            "dataFile": "art.json"
+        },
+        {
+            "id": "business",
+            "name": "商业应用",
+            "icon": "💼",
+            "description": "商业相关的AI提示词",
+            "dataFile": "business.json"
+        },
+        {
+            "id": "education",
+            "name": "教育学习",
+            "icon": "📚",
+            "description": "教育相关的AI提示词",
+            "dataFile": "education.json"
+        }
+    ]
+} 
